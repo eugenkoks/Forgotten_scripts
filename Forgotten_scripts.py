@@ -31,10 +31,10 @@ class Forgotten_script:
         self.wrond_pass_div = '/html/body/div/div/div/div[2]/main/div/div/div[1]/div'
         self.tweet_page = '/html/body/div/div/div/div[2]/main/div/div/div/div[1]/div/div[2]/div/section/div/div/div/div/div[1]/article/div/div/div/div[3]/div[1]/div/div[1]'
         self.tweet_id = '/html/body/div/div/div/div[2]/main/div/div/div/div[1]/div/div[2]/div/section/div/div/div/div/div[1]/article/div/div/div/div[3]/div[1]/div/div[1]'
-        self.like = '/html/body/div/div/div/div[2]/main/div/div/div/div[1]/div/div[2]/div/section/div/div/div[1]/div/div/article/div/div/div/div[3]/div[5]/div/div[3]/div/div/div'
-        self.retweet = '/html/body/div/div/div/div[2]/main/div/div/div/div[1]/div/div[2]/div/section/div/div/div[1]/div/div[1]/article/div/div/div/div[3]/div[5]/div[2]/div'
+        self.like = '/html/body/div/div/div/div[2]/main/div/div/div/div[1]/div/div[2]/div/section/div/div/div[1]/div/div[1]/article/div/div/div/div[3]/div[5]/div/div[3]/div'
+        self.retweet = '/html/body/div/div/div/div[2]/main/div/div/div/div[1]/div/div[2]/div/section/div/div/div[1]/div/div[1]/article/div/div/div/div[3]/div[5]/div/div[2]/div'
         self.retweet_confirm = '/html/body/div/div/div/div[1]/div[2]/div/div/div/div[2]/div[3]/div/div/div/div'
-        self.subscribe_button = '/html/body/div/div/div/div[2]/main/div/div/div/div[1]/div/div[2]/div/div/div[1]/div[1]/div[1]/div/div[4]/div/div'
+        self.subscribe_button = '/html/body/div/div/div/div[2]/main/div/div/div/div[1]/div/div[2]/div/div/div[1]/div[1]/div[1]/div/div[3]/div/div'
         self.start_page = 'https://twitter.com/login'
         options = webdriver.ChromeOptions()
         options.add_argument('--ignore-certificate-errors')
@@ -113,31 +113,26 @@ class Forgotten_script:
                         '/html/body/div/div/div/div[2]/main/div/div/div/div[1]/div/div[2]/div/div/div[1]/div[1]/div[1]/div/div[4]/div/div').get_attribute(
                         "data-testid").split('-')
                     if subscribe_button_option[1] == 'follow':
-                        self.driver.find_element_by_xpath(self.subscribe_button).click()
+                        subscribe_button_wait.click()
                 except TimeoutException:
                     print('Не удалось прожать подписку')
 
     def like_rt(self, url):
-        while not self.check_url(url):
-            self.check_url(url)
-        try:
-            while WebDriverWait(self.driver, 3).until(
-                    EC.visibility_of_element_located(
-                        (By.XPATH, "/html/body/div/div/div/div[1]/div/div[1]/div/div"))):
-                self.driver.refresh()
-        except TimeoutException:
-            try:
-                like_btn_wait = WebDriverWait(self.driver, 10).until(
-                    EC.element_to_be_clickable((By.XPATH, self.like)))
-                rt_btn_wait = WebDriverWait(self.driver, 10).until(
-                    EC.element_to_be_clickable((By.XPATH, self.retweet)))
-                like_btn_wait.click()
-                rt_btn_wait.click()
-                rt_confirm_btn_wait = WebDriverWait(self.driver, 10).until(
-                    EC.element_to_be_clickable((By.XPATH, self.retweet_confirm)))
-                rt_confirm_btn_wait.click()
-            except NoSuchElementException:
-                print("Лайк не поставлен")
+        self.driver.get(url)
+        tweet_page_wait = WebDriverWait(self.driver, 5).until(EC.visibility_of_element_located((By.XPATH,
+                                                                                                '/html/body/div/div/div/div[2]/main/div/div/div/div[1]/div/div[2]/div/section/div/div/div[1]/div/div[1]/article/div/div/div/div[3]/div[5]')))
+        if tweet_page_wait:
+            like_btn_wait = WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, self.like)))
+            rt_btn_wait = WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, self.retweet)))
+            like_btn_wait.click()
+            rt_btn_wait.click()
+            rt_confirm_btn_wait = WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, self.retweet_confirm)))
+            rt_confirm_btn_wait.click()
+        else:
+            self.like_rt(url)
 
 
 start = Forgotten_script('https://twitter.com/torpedoAIO/status/1411769304048091142', 'qawsedrftgy1973@', '89955086949',
