@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>STB v 1.0.1</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script type="text/javascript" src="/eel.js"></script>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500&display=swap" rel="stylesheet">
+	<link rel="icon" href="/icon.ico" type="image/x-icon">
+</head>
+<body>
+	<div class="main__block">
+		<div id="url__block">
+			<p id="url__text">TARGET:</p>
+			<input type="text" id="url" name="url" autofocus>
+<!-- 			<input type="submit" name="register" value="start"> -->
+			<button id="btn">Start</button>
+		</div>
+		<div class="center">
+			<div>
+				<p>
+					<input id="headless" type="checkbox" name="checkbox">
+					<span class="span"> Headless</span>
+				</p>
+				<p>
+					<input id="tag" type="checkbox" name="checkbox">
+					<span class="span"> Tag friend</span>
+				</p>
+			</div>
+<!-- 			<p>
+				<input id="headless" type="checkbox" name="checkbox">
+				<span class="span"> Headless</span>
+			</p>
+			<p>
+				<input id="tag" type="checkbox" name="checkbox">
+				<span class="span"> Tag friend</span>
+			</p> -->
+			<div>
+				<p>
+					<input id="onlyLikeRetweet" type="checkbox" name="checkbox">
+					<span class="span"> Only Like & Reetweet</span>
+				</p>
+			</div>
+
+		</div>
+<!-- 		<div>
+			<p>Tasks:</p>
+			<input id="tasksCount" type="text" name="countTasks" placeholder="Soon" disabled>
+		</div> -->
+	</div>
+
+	<script>
+		let btn = document.querySelector("#btn");
+		btn.addEventListener("click", sendUrl);
+
+		async function sendUrl(){
+			let url = document.querySelector("#url").value;
+			let headless
+			if (document.querySelector('#headless').checked) {
+				headless = "on"
+			}
+			else {
+				headless = "off"
+			}
+
+			let tag
+			if (document.querySelector('#tag').checked) {
+				tag = "on"
+			}
+			else {
+				tag = "off"
+			}
+
+			let like_retweet
+			if (document.querySelector('#onlyLikeRetweet').checked){
+				like_retweet = 'on'
+			}
+			else {
+				like_retweet = 'off'
+			}
+			await eel.url_print(url, headless, tag, like_retweet);
+		}
+	</script>
+
+</body>
+</html>

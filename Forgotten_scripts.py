@@ -54,11 +54,12 @@ class Forgotten_script:
         self.normal_options.add_argument('--no-sandbox')
         self.normal_options.add_argument('--disable-dev-shm-usage')
         self.normal_options.add_argument('--window-size=800,900')
-        self.normal_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.123 Safari/537.36")
+        self.normal_options.add_argument(
+            "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.123 Safari/537.36")
         if tag == 'on':
-            pass
+            self.tag = True
         else:
-            pass
+            self.tag = False
 
     def scrapping_tweet(self, url):
         driver = webdriver.Chrome(options=self.headless_options)
@@ -101,7 +102,7 @@ class Forgotten_script:
         driver.quit()
         return cookies
 
-    def like_rt(self, cookies):
+    def like_rt(self, cookies, tag):
         driver = webdriver.Chrome(options=self.normal_options)
         driver.get(self.url)
         for cookie in cookies:
@@ -117,32 +118,58 @@ class Forgotten_script:
         rt_confirm_btn_wait = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, self.retweet_confirm)))
         rt_confirm_btn_wait.click()
+        driver.quit()
+        if tag:
+            driver = webdriver.Chrome(options=self.normal_options)
+            driver.get(self.url)
+            for cookie in cookies:
+                driver.add_cookie(cookie)
+            driver.refresh()
+            time.sleep(random.randint(3, 5))
+            driver.find_element_by_xpath("//div[@data-testid='reply'][@role='button']").click()
+            time.sleep(3)
+            tag_name = 'johpohan'
+            driver.find_element_by_xpath("//div[@data-testid='tweetTextarea_0'][@role='textbox']").send_keys(f"@{tag_name} ")
+            time.sleep(3)
+            driver.find_element_by_xpath("//div[@data-testid='tweetButton'][@role='button']").click()
+            print('Тэгнул.')
+            time.sleep(3)
+            driver.quit()
+        else:
+            pass
 
     def subscribe(self, links, cookies):
         driver = webdriver.Chrome(options=self.normal_options)
         for link in links:
             link = "https://twitter.com" + link
             driver.get(link)
-            time.sleep(random.randint(3, 5))
             for cookie in cookies:
                 driver.add_cookie(cookie)
             driver.refresh()
             time.sleep(random.randint(3, 5))
             subscribe_button_wait = WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.XPATH, self.subscribe_button)))
-            print(subscribe_button_wait)
             subscribe_button_option = driver.find_element_by_xpath(
                 '//div[@data-testid="placementTracking"]/div/div').get_attribute(
                 "data-testid").split('-')
-            print(subscribe_button_option[1])
             if subscribe_button_option[1] == 'follow':
-            fa    driver.find_element_by_xpath(self.subscribe_button).click()
+                driver.find_element_by_xpath(self.subscribe_button).click()
+        driver.quit()
+
+    def main(self):
+        links = self.scrapping_tweet(self.url)
+        cookies = self.login()
+        self.like_rt(cookies, self.tag)
+        self.subscribe(links, cookies)
 
 
-start = Forgotten_script('https://twitter.com/torpedoAIO/status/1411769304048091142', 'qawsedrftgy1973@', '89955086949',
-                         'off', 'off')
-# скраппинг работает и хедлесс
-links = start.scrapping_tweet('https://twitter.com/torpedoAIO/status/1411769304048091142')
-cookies = start.login()
-# start.like_rt(cookies)
-start.subscribe(links, cookies)
+eel.init("web")
+
+
+@eel.expose
+def url_print(url, headless, tag, only_lk_rt):
+    start = Forgotten_script(url, 'qawsedrftgy1973@', '89955086949', tag, headless)
+    start.main()
+
+
+eel.start("main.html", size=(500, 260), port=0)
