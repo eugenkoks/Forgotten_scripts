@@ -1,27 +1,23 @@
-import os
-import pickle
 import time
 import random
 
 import eel
-import lxml
 from selenium import webdriver
 from bs4 import BeautifulSoup
-import pickle
 
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 
 
 class Forgotten_script:
-    def __init__(self, url, password, login, tag, headless):
+    def __init__(self, url, tag, headless, like, retweet):
         self.url = url
-        self.password_str = password
-        self.login_str = login
         self.tag = tag
+        self.like = like
+        self.like = retweet
         self.headless = headless
         self.login_div = '/html/body/div/div/div/div[2]/main/div/div'
         self.login_input = '/html/body/div/div/div/div[2]/main/div/div/div[2]/form/div/div[1]/label/div/div[2]/div/input'
@@ -79,8 +75,11 @@ class Forgotten_script:
         driver.quit()
         return links
 
-    def login(self):
-        driver = webdriver.Chrome(options=self.normal_options)
+    def login(self, login_str, password_str):
+        if self.headless == 'off':
+            driver = webdriver.Chrome(options=self.normal_options)
+        else:
+            driver = webdriver.Chrome(options=self.headless_options)
         driver.get(self.start_page)
         time.sleep(random.randint(3, 5))
         try:
@@ -88,11 +87,11 @@ class Forgotten_script:
                 EC.element_to_be_clickable((By.XPATH, self.login_input)))
             pass_input_wait = WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.XPATH, self.password_input)))
-            auth_btn_wait = WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.XPATH, self.authorize_btn)))
-            login_input_wait.send_keys(self.login_str)
-            pass_input_wait.send_keys(self.password_str)
-            auth_btn_wait.click()
+            login_input_wait.send_keys(login_str)
+            pass_input_wait.send_keys(password_str)
+            pass_input_wait.send_keys(Keys.RETURN)
+        except StaleElementReferenceException:
+            pass
         except NoSuchElementException:
             print('NoSuchElementException')
         except TimeoutException:
@@ -103,24 +102,42 @@ class Forgotten_script:
         return cookies
 
     def like_rt(self, cookies, tag):
-        driver = webdriver.Chrome(options=self.normal_options)
+        if self.headless == 'off':
+            driver = webdriver.Chrome(options=self.normal_options)
+        else:
+            driver = webdriver.Chrome(options=self.headless_options)
         driver.get(self.url)
         for cookie in cookies:
             driver.add_cookie(cookie)
         driver.refresh()
         time.sleep(random.randint(3, 5))
-        like_btn_wait = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, self.like)))
-        rt_btn_wait = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, self.retweet)))
-        like_btn_wait.click()
-        rt_btn_wait.click()
-        rt_confirm_btn_wait = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, self.retweet_confirm)))
-        rt_confirm_btn_wait.click()
+        if self.like and self.retweet:
+            like_btn_wait = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, self.like)))
+            rt_btn_wait = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, self.retweet)))
+            like_btn_wait.click()
+            rt_btn_wait.click()
+            rt_confirm_btn_wait = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, self.retweet_confirm)))
+            rt_confirm_btn_wait.click()
+        elif self.like:
+            like_btn_wait = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, self.like)))
+            like_btn_wait.click()
+        elif self.retweet:
+            rt_btn_wait = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, self.retweet)))
+            rt_btn_wait.click()
+            rt_confirm_btn_wait = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, self.retweet_confirm)))
+            rt_confirm_btn_wait.click()
         driver.quit()
         if tag:
-            driver = webdriver.Chrome(options=self.normal_options)
+            if self.headless == 'off':
+                driver = webdriver.Chrome(options=self.normal_options)
+            else:
+                driver = webdriver.Chrome(options=self.headless_options)
             driver.get(self.url)
             for cookie in cookies:
                 driver.add_cookie(cookie)
@@ -129,17 +146,20 @@ class Forgotten_script:
             driver.find_element_by_xpath("//div[@data-testid='reply'][@role='button']").click()
             time.sleep(3)
             tag_name = 'johpohan'
-            driver.find_element_by_xpath("//div[@data-testid='tweetTextarea_0'][@role='textbox']").send_keys(f"@{tag_name} ")
+            driver.find_element_by_xpath("//div[@data-testid='tweetTextarea_0'][@role='textbox']").send_keys(
+                f"@{tag_name} ")
             time.sleep(3)
             driver.find_element_by_xpath("//div[@data-testid='tweetButton'][@role='button']").click()
             print('Тэгнул.')
             time.sleep(3)
             driver.quit()
-        else:
-            pass
+            print('Ретвит, тэг, лайк выполнено')
 
     def subscribe(self, links, cookies):
-        driver = webdriver.Chrome(options=self.normal_options)
+        if self.headless == 'off':
+            driver = webdriver.Chrome(options=self.normal_options)
+        else:
+            driver = webdriver.Chrome(options=self.headless_options)
         for link in links:
             link = "https://twitter.com" + link
             driver.get(link)
@@ -147,29 +167,39 @@ class Forgotten_script:
                 driver.add_cookie(cookie)
             driver.refresh()
             time.sleep(random.randint(3, 5))
-            subscribe_button_wait = WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.XPATH, self.subscribe_button)))
             subscribe_button_option = driver.find_element_by_xpath(
                 '//div[@data-testid="placementTracking"]/div/div').get_attribute(
                 "data-testid").split('-')
             if subscribe_button_option[1] == 'follow':
-                driver.find_element_by_xpath(self.subscribe_button).click()
+                subscribe_button_wait = WebDriverWait(driver, 60).until(
+                    EC.element_to_be_clickable((By.XPATH, '//div[@data-testid="placementTracking"]/div/div')))
+                subscribe_button_wait.click()
+            print(f'Подписка на {link} выполнена')
         driver.quit()
 
     def main(self):
+        print('Начало работы')
+        accounts = []
+        with open("accs.txt") as file:
+            for line in file:
+                accounts.append(line)
+
         links = self.scrapping_tweet(self.url)
-        cookies = self.login()
-        self.like_rt(cookies, self.tag)
-        self.subscribe(links, cookies)
+
+        for account in accounts:
+            log_pass = account.split(":")
+            cookies = self.login(log_pass[0], log_pass[1])
+            self.like_rt(cookies, self.tag)
+            self.subscribe(links, cookies)
 
 
 eel.init("web")
 
 
 @eel.expose
-def url_print(url, headless, tag, only_lk_rt):
-    start = Forgotten_script(url, 'qawsedrftgy1973@', '89955086949', tag, headless)
+def url_print(url, headless, tag, like, retweet):
+    start = Forgotten_script(url, tag, headless, like, retweet)
     start.main()
 
 
-eel.start("main.html", size=(500, 260), port=0)
+eel.start("main.html", size=(500, 300), port=0)

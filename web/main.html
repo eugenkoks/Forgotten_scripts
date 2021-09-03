@@ -24,23 +24,19 @@
 					<input id="headless" type="checkbox" name="checkbox">
 					<span class="span"> Headless</span>
 				</p>
-				<p>
-					<input id="tag" type="checkbox" name="checkbox">
-					<span class="span"> Tag friend</span>
-				</p>
 			</div>
-<!-- 			<p>
-				<input id="headless" type="checkbox" name="checkbox">
-				<span class="span"> Headless</span>
-			</p>
-			<p>
-				<input id="tag" type="checkbox" name="checkbox">
-				<span class="span"> Tag friend</span>
-			</p> -->
 			<div>
 				<p>
-					<input id="onlyLikeRetweet" type="checkbox" name="checkbox">
-					<span class="span"> Only Like & Reetweet</span>
+					<input id="like" type="checkbox" name="checkbox">
+					<span class="span"> Like</span>
+				</p>
+				<p>
+					<input id="retweet" type="checkbox" name="checkbox">
+					<span class="span"> Retweet</span>
+				</p>
+				<p>
+					<input id="tag" type="checkbox" name="checkbox">
+					<span class="span"> Tag</span>
 				</p>
 			</div>
 
@@ -57,14 +53,13 @@
 
 		async function sendUrl(){
 			let url = document.querySelector("#url").value;
-			let headless
-			if (document.querySelector('#headless').checked) {
-				headless = "on"
+			let like
+			if (document.querySelector('#like').checked) {
+				like = "on"
 			}
 			else {
-				headless = "off"
+				like = "off"
 			}
-
 			let tag
 			if (document.querySelector('#tag').checked) {
 				tag = "on"
@@ -72,15 +67,20 @@
 			else {
 				tag = "off"
 			}
-
-			let like_retweet
-			if (document.querySelector('#onlyLikeRetweet').checked){
-				like_retweet = 'on'
+			let retweet
+			if (document.querySelector('#retweet').checked){
+				retweet = 'on'
 			}
 			else {
-				like_retweet = 'off'
+				retweet = 'off'
 			}
-			await eel.url_print(url, headless, tag, like_retweet);
+			if (document.querySelector('#headless').checked) {
+				headless = "on"
+			}
+			else {
+				headless = "off"
+			}
+			await eel.url_print(url, headless, tag, like, retweet);
 		}
 	</script>
 
