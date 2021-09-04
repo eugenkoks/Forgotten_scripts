@@ -13,14 +13,29 @@ span {
   position: absolute;
 }
 
-#url__text{
+#main__block{
+  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
+  display: grid;
+}
+
+#url__block{
+  
+}
+
+
+
+
+
+
+/*#url__text{
 margin: 10px 0 0 0;
 }
 
 .main__block {
   max-width: 0 16px 10px 0;
 /*	margin-left: 10px;*/
-	display: grid;
+/*	display: grid;
 }
 
 .url__block,
@@ -38,7 +53,7 @@ margin: 10px 0 0 0;
 
 .center {
 
-}
+}*/
 
 input[type="checkbox"] {
   width: 30px;

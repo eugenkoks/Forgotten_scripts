@@ -1,15 +1,13 @@
 import time
 import random
-
+import modules.login_module
 import eel
 from selenium import webdriver
 from bs4 import BeautifulSoup
 
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
 
 
 class Forgotten_script:
@@ -75,31 +73,31 @@ class Forgotten_script:
         driver.quit()
         return links
 
-    def login(self, login_str, password_str):
-        if self.headless == 'off':
-            driver = webdriver.Chrome(options=self.normal_options)
-        else:
-            driver = webdriver.Chrome(options=self.headless_options)
-        driver.get(self.start_page)
-        time.sleep(random.randint(3, 5))
-        try:
-            login_input_wait = WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.XPATH, self.login_input)))
-            pass_input_wait = WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.XPATH, self.password_input)))
-            login_input_wait.send_keys(login_str)
-            pass_input_wait.send_keys(password_str)
-            pass_input_wait.send_keys(Keys.RETURN)
-        except StaleElementReferenceException:
-            pass
-        except NoSuchElementException:
-            print('NoSuchElementException')
-        except TimeoutException:
-            print('TimeoutException')
-        cookies = driver.get_cookies()
-        print("Успешная авторизация")
-        driver.quit()
-        return cookies
+    # def login(self, login_str, password_str):
+    #     if self.headless == 'off':
+    #         driver = webdriver.Chrome(options=self.normal_options)
+    #     else:
+    #         driver = webdriver.Chrome(options=self.headless_options)
+    #     driver.get(self.start_page)
+    #     time.sleep(random.randint(3, 5))
+    #     try:
+    #         login_input_wait = WebDriverWait(driver, 10).until(
+    #             EC.element_to_be_clickable((By.XPATH, self.login_input)))
+    #         pass_input_wait = WebDriverWait(driver, 10).until(
+    #             EC.element_to_be_clickable((By.XPATH, self.password_input)))
+    #         login_input_wait.send_keys(login_str)
+    #         pass_input_wait.send_keys(password_str)
+    #         pass_input_wait.send_keys(Keys.RETURN)
+    #     except StaleElementReferenceException:
+    #         pass
+    #     except NoSuchElementException:
+    #         print('NoSuchElementException')
+    #     except TimeoutException:
+    #         print('TimeoutException')
+    #     cookies = driver.get_cookies()
+    #     print("Успешная авторизация")
+    #     driver.quit()
+    #     return cookies
 
     def like_rt(self, cookies, tag):
         if self.headless == 'off':
@@ -188,7 +186,7 @@ class Forgotten_script:
 
         for account in accounts:
             log_pass = account.split(":")
-            cookies = self.login(log_pass[0], log_pass[1])
+            cookies = modules.login_module.login(log_pass[0], log_pass[1])
             self.like_rt(cookies, self.tag)
             self.subscribe(links, cookies)
 
