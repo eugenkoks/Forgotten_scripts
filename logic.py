@@ -36,7 +36,7 @@ with open("accs.txt") as file:
         if headless == 'on':
             options.add_argument("--headless")
         else:
-                    options.add_argument("--window-size=800,900")
+            options.add_argument("--window-size=800,900")
         self.driver = webdriver.Chrome(options=options)
 
     def scrapping(self):
@@ -88,7 +88,8 @@ with open("accs.txt") as file:
             WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH,
                                                                                  '/html/body/div/div/div/div[2]/main/div/div/div/div[1]/div/div[2]/div/div/div[1]/div[1]/div[1]/div/div[3]')))
             subscribe_button = self.driver.find_element_by_xpath(
-                '/html/body/div/div/div/div[2]/main/div/div/div/div[1]/div/div[2]/div/div/div[1]/div[1]/div[1]/div/div[4]/div/div').get_attribute("data-testid").split('-')
+                '/html/body/div/div/div/div[2]/main/div/div/div/div[1]/div/div[2]/div/div/div[1]/div[1]/div[1]/div/div[4]/div/div').get_attribute(
+                "data-testid").split('-')
             if subscribe_button[1] == 'follow':
                 self.driver.find_element_by_xpath(
                     '/html/body/div/div/div/div[2]/main/div/div/div/div[1]/div/div[2]/div/div/div[1]/div/div[1]/div/div[3]/div/div').click()
