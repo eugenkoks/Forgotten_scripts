@@ -1,3 +1,6 @@
-chromedriver.exe
+# ignore all logs and txt files
+*.exe
+*.txt
 
-accs.txt
+# ignore vscode system files
+/.idea
